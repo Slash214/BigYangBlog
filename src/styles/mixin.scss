@@ -1,0 +1,34 @@
+@mixin text-hidden($clamp: 1) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: -webkit-box;
+    word-break: break-all;
+    -webkit-line-clamp: $clamp;
+    -webkit-box-orient: vertical;
+}
+
+@mixin flex-auto($al: false, $jc: false, $row: row) {
+    display: flex;
+    flex-direction: $row;
+    @if ($al) {
+        align-items: $al
+    }
+    @if ($jc) {
+        justify-content: $jc;
+    }
+}
+
+@mixin font-set ($size: false, $color: false, $weight: false, $lh: false) {
+    @if $size {
+        font-size: $size;
+    }
+    @if $color {
+        color: $color;
+    }
+    @if $weight {
+        font-weight: $weight;
+    }
+    @if $lh {
+        line-height: $lh;
+    }
+}
