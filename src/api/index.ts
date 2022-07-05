@@ -3,7 +3,6 @@ import request from "./http"
 const env = import.meta.env.MODE
 console.log(env)
 
-
 const urls = new Map<string, any>([
 	['dev', 'http://127.0.0.1:4000/'],
 	['test','http://127.0.0.1:4523/m1/532983-0-default'],
