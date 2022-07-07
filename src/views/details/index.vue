@@ -13,14 +13,18 @@
         </div>
 
         <div class="blog_content whites">
-            <ul>
-                <li v-for="item in 400">内容{{ item }}</li>
-            </ul>
+            <MdViewer :value="state.content" />
         </div>
 
         <div class="blog_comment whites">
             <div class="mb20">
-                <el-input class="mb10" maxlength="40" v-model="state.remake" type="textarea" placeholder="友善的评论会发光哦" />
+                <el-input
+                    class="mb10"
+                    maxlength="40"
+                    v-model="state.remake"
+                    type="textarea"
+                    placeholder="友善的评论会发光哦"
+                />
                 <el-button class="btns" type="success">评论</el-button>
             </div>
             <div class="list">
@@ -31,8 +35,11 @@
 </template>
 
 <script setup lang="ts">
+import { grtBlogDetails } from '@/api'
 import { onMounted, reactive } from 'vue'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const kk = [
     {
         id: 1,
@@ -42,13 +49,30 @@ const kk = [
     },
 ]
 
-onMounted(() => {
-    console.log('详情')
-})
-
 const state = reactive({
     remake: <string>'',
+    content: <any>``
 })
+
+
+
+onMounted(async () => {
+    console.log('详情')
+    let id = route.params.id
+    console.log(route.params)
+    const { data, code } = await grtBlogDetails({ blogid: +id })
+
+    console.log(data, code)
+    if (code === 200) {
+        state.content = data.content
+        console.warn(data.content)
+    }
+})
+
+
+
+
+
 </script>
 
 <style scoped lang="scss">
@@ -80,10 +104,16 @@ const state = reactive({
     }
     .blog_comment {
         margin: 20px 0;
-		.btns {
-			display: flex;
-			flex-direction: row-reverse;
-		}
+        .btns {
+            display: flex;
+            flex-direction: row-reverse;
+        }
+    }
+    .blog_content {
+        .viewer {
+            min-height: 50vh;
+            width: 100%;
+        }
     }
 }
 </style>

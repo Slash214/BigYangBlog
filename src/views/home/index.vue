@@ -1,7 +1,13 @@
 <template>
     <div class="menu">
-        <el-tag size="large" :class="item.checked ? 'active' : ''"  @click="changeTag(item)"
-        v-for="item of state.menu" :key="item.id">{{ item.name }} </el-tag>
+        <el-tag
+            size="large"
+            :class="item.checked ? 'active' : ''"
+            @click="changeTag(item)"
+            v-for="item of state.menu"
+            :key="item.id"
+            >{{ item.name }}
+        </el-tag>
     </div>
     <div class="safe_area" :style="{ background: state.loading ? 'none' : '#fff' }">
         <el-skeleton :loading="state.loading" animated>
@@ -18,11 +24,15 @@
             <template #default>
                 <template v-for="item of state.list" :key="item.id">
                     <article class="list" @click="gotoDetails(item)">
-                        <el-image :src="item.picture"></el-image>
+                        <el-image :src="item.cover"></el-image>
                         <div class="desc">
                             <h4 class="title" v-text="item.title"></h4>
                             <p class="info" v-text="item.desc"></p>
-                            <span class="tag">12312</span>
+                            <div class="tagbox">
+                                <span class="tag" v-for="tag_value in item.tag">
+                                    {{ tag_value }}
+                                </span>
+                            </div>
                         </div>
                     </article>
                     <el-divider />
@@ -31,7 +41,7 @@
         </el-skeleton>
 
         <div class="pages" v-if="!state.loading">
-            <el-pagination @current-change="hanldePage" background layout="prev, pager, next" :total="1000" />
+            <el-pagination @current-change="hanldePage" background layout="prev, pager, next" :total="state.total" />
         </div>
     </div>
 </template>
@@ -54,6 +64,7 @@ const state = reactive({
     loading: <boolean>true,
     pageSize: <number>20,
     pageIndex: <number>1,
+    total: <number>0,
     menu: <menulist[]>[
         { id: 1, name: 'JavaScript' },
         { id: 2, name: 'CSS' },
@@ -104,9 +115,14 @@ onMounted(() => {
 })
 
 const getList = async () => {
-    const { code, data, message } = await getBlog({
-        pageIndex: state.pageSize,
-        pageSize: state.pageIndex,
+    const {
+        code,
+        data,
+        message,
+        total = 0,
+    } = await getBlog({
+        pageIndex: state.pageIndex,
+        pageSize: state.pageSize,
     })
 
     if (message) {
@@ -116,11 +132,16 @@ const getList = async () => {
     }
 
     if (code === 200) {
+        state.total = total
+        for (let item of data) {
+
+            item.tag = JSON.parse(item.tag)
+        }
         state.list = data
         setTimeout(() => {
             state.loading = false
         }, 1000)
-        // console.error(state.list)
+        console.error(state.list)
     }
 }
 
@@ -144,7 +165,6 @@ const changeTag = (val: menulist) => {
         if (val.id === e.id) e.checked = true
     })
 }
-
 </script>
 
 <style scoped lang="scss">
@@ -200,8 +220,11 @@ const changeTag = (val: menulist) => {
                 @include text-hidden(2);
                 @include font-set($font16, #555, false, 1.4);
             }
-            .tag {
-                @include font-set($font14, #999, false, 1.4);
+            .tagbox {
+                .tag {
+                    margin-right: 10px;
+                    @include font-set($font14, #999, false, 1.4);
+                }
             }
         }
     }
