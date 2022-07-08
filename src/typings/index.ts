@@ -3,15 +3,19 @@ export interface blogList {
 	cover: string,
 	title: string,
 	tag: any,
-	desc: string
+	desc: string,
+	ago?: string,
+	shortTime?: string,
+	author: string
 }
 
 export interface comment {
-	id: number,
+	id?: number,
 	content: string,
-	avatar: string,
-	time: string,
-	nickname: string,
+	avatar?: string,
+	ago?: string,
+	nickname?: string,
+	blogid?: number,
 }
 
 export interface blog {

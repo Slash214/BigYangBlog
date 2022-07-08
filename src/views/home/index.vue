@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive } from 'vue'
-import { getBlog } from '@/api'
+import { getBlog, getTag } from '@/api'
 import { useRouter } from 'vue-router'
 import { blogList } from '@/typings'
 
@@ -65,53 +65,12 @@ const state = reactive({
     pageSize: <number>20,
     pageIndex: <number>1,
     total: <number>0,
-    menu: <menulist[]>[
-        { id: 1, name: 'JavaScript' },
-        { id: 2, name: 'CSS' },
-        { id: 3, name: 'HTML' },
-        { id: 4, name: 'Node' },
-        { id: 5, name: 'Git' },
-        { id: 6, name: 'Vue' },
-        { id: 7, name: 'Angular' },
-        { id: 8, name: 'Uni-App' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-        { id: 9, name: '微信小程序' },
-    ],
+    menu: <menulist[]>[]
 })
 
 onMounted(() => {
     getList()
-    state.menu.unshift({ id: 0, name: '全部' })
-    for (let item of state.menu) {
-        if (item.id === 0) item['checked'] = true
-        else item['checked'] = false
-    }
+    getTagMenu()
 })
 
 const getList = async () => {
@@ -141,13 +100,32 @@ const getList = async () => {
         setTimeout(() => {
             state.loading = false
         }, 1000)
-        console.error(state.list)
+        console.warn(state.list)
+    }
+}
+
+const getTagMenu = async () => {
+    const { data, code, message } = await getTag()
+    if (code === 200) {
+        let arr = []
+        for (const val of data) {
+            let { id, name } = val
+            arr.push({ id, name, checked: false })
+        }
+        arr.unshift({ id: 0, name: '全部', checked: true })
+        state.menu = arr
     }
 }
 
 const gotoDetails = (val: blogList) => {
-    console.log('跳转')
-    console.log(val.id)
+    // console.log('跳转', val)
+    // console.log(val.id)
+    let item = {
+        time: val.shortTime,
+        author: val.author,
+        title: val.title,
+    }
+    localStorage.setItem('lovehehe_article', JSON.stringify(item))
     // return
     router.push(`/article/${val.id}`)
 }

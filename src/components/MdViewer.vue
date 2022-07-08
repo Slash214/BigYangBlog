@@ -24,8 +24,8 @@ const props = withDefaults(defineProps<Props>(), {
     plugins: [breaks(), highlight(), footnotes(), frontmatter(), gfm(), mediumZoom(), gemoji()],
 })
 
-const viewer = ref<bytemd.Editor>(null)
-const instance = getCurrentInstance()
+const viewer = ref<bytemd.Editor | any>(null)
+const instance:any = getCurrentInstance()
 
 onMounted(() => {
     viewer.value = new bytemd.Viewer({

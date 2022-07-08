@@ -7,8 +7,11 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     BackTop: typeof import('./components/BackTop.vue')['default']
     Comment: typeof import('./components/Comment.vue')['default']
+    ElAffix: typeof import('element-plus/es')['ElAffix']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBacktop: typeof import('element-plus/es')['ElBacktop']
+    ElBreadcrumb: typeof import('element-plus/es')['ElBreadcrumb']
+    ElBreadcrumbItem: typeof import('element-plus/es')['ElBreadcrumbItem']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElDivider: typeof import('element-plus/es')['ElDivider']
     ElIcon: typeof import('element-plus/es')['ElIcon']
@@ -23,12 +26,12 @@ declare module '@vue/runtime-core' {
     ElTag: typeof import('element-plus/es')['ElTag']
     ElUpload: typeof import('element-plus/es')['ElUpload']
     Footer: typeof import('./components/Footer.vue')['default']
-    Form: typeof import('./components/Form.vue')['default']
     Header: typeof import('./components/Header.vue')['default']
     MdViewer: typeof import('./components/MdViewer.vue')['default']
     Popup: typeof import('./components/Popup.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Tree: typeof import('./components/Tree.vue')['default']
   }
 }
 

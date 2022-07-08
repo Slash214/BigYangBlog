@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { grtTag } from '@/api'
+import { getTag } from '@/api'
 import { onMounted, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Plus, Delete } from '@element-plus/icons-vue'
@@ -78,7 +78,7 @@ const props = defineProps({
 })
 
 onMounted(async () => {
-    const { data, code } = await grtTag()
+    const { data, code } = await getTag()
     if (code === 200) {
         console.log(data)
         let arr = []

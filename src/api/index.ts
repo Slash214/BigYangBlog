@@ -1,5 +1,5 @@
 let baseURL = ''
-import { blog } from "@/typings"
+import { blog, comment } from "@/typings"
 import request from "./http"
 const env = import.meta.env.MODE
 console.log(env)
@@ -29,7 +29,7 @@ export function addBlog(data: blog) {
 	})
 }
 
-export function grtTag() {
+export function getTag() {
 	return request({
 		url: `${baseURL}/blog/tag`,
 		method: 'GET',
@@ -37,10 +37,41 @@ export function grtTag() {
 }
 
 
-export function grtBlogDetails(params: { blogid: number }) {
+export function getBlogDetails(params: { blogid: number }) {
 	return request({
 		url: `${baseURL}/blog/detail`,
 		method: 'GET',
 		params
+	})
+}
+
+export const getComment = (params: { blogid: number }) => {
+	return request({
+		url: `${baseURL}/blog/comment`,
+		method: 'GET',
+		params
+	})
+}
+
+export const addComment = (data: comment) => {
+	return request({
+		url: `${baseURL}/blog/addremake`,
+		method: 'POST',
+		data
+	})
+}
+
+export const getAvatar = (params: { size?: number }) => {
+	return request({
+		url: `${baseURL}/random/avatar`,
+		method: 'GET',
+		params
+	})
+}
+
+export const getNickname = () => {
+	return request({
+		url: `${baseURL}/random/nickname`,
+		method: 'GET',
 	})
 }
