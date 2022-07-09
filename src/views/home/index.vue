@@ -8,6 +8,7 @@
             :key="item.id"
             >{{ item.name }}
         </el-tag>
+        <span class="null_tag" v-if="state.menu.length < 2">暂无标签</span>
     </div>
     <div class="safe_area" :style="{ background: state.loading ? 'none' : '#fff' }">
         <el-skeleton :loading="state.loading" animated>
@@ -40,8 +41,13 @@
             </template>
         </el-skeleton>
 
-        <div class="pages" v-if="!state.loading">
+        <div class="pages" v-if="!state.loading && !state.empty">
             <el-pagination @current-change="hanldePage" background layout="prev, pager, next" :total="state.total" />
+        </div>
+
+        <div class="empty">
+            <el-empty :image-size="400"
+            image="https://img.pinkyang.cn/2022.07.08-undraw_Add_notes_re_ln36.png" description="博主很懒，还没写任何博客内容哦" />
         </div>
     </div>
 </template>
@@ -65,7 +71,8 @@ const state = reactive({
     pageSize: <number>20,
     pageIndex: <number>1,
     total: <number>0,
-    menu: <menulist[]>[]
+    menu: <menulist[]>[],
+    empty: <boolean>false
 })
 
 onMounted(() => {
@@ -84,9 +91,11 @@ const getList = async () => {
         pageSize: state.pageSize,
     })
 
-    if (message) {
+    if (message || data.length === 0) {
         console.error('请求异常')
         // 显示空数据
+        state.loading = false
+        state.empty = true
         return
     }
 
@@ -154,6 +163,10 @@ const changeTag = (val: menulist) => {
     padding: 20px;
     background-color: $white;
     cursor: pointer;
+    .null_tag {
+        @include font-set($font14, #777, 400, 1.5);
+        padding: 0 0 0 10px;
+    }
     .el-tag {
         margin: 0 10px 10px 0;
         &:hover {
@@ -209,6 +222,10 @@ const changeTag = (val: menulist) => {
     .pages {
         @include flex-auto(center, center);
         padding-bottom: 20px;
+    }
+
+    .empty {
+        padding-top: 100px;
     }
 }
 </style>

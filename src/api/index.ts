@@ -75,3 +75,11 @@ export const getNickname = () => {
 		method: 'GET',
 	})
 }
+
+export const usrLogin = (data: { password: string,  username: string }) => {
+	return request({
+		url: `${baseURL}/blog/login`,
+		data,
+		method: 'POST'
+	})
+}
