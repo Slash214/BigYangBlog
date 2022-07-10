@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-backtop :bottom="100">
+        <el-backtop :bottom="200">
             <div
                 style="
                     height: 100%;
@@ -12,7 +12,7 @@
                     color: #1989fa;
                 "
             >
-                UP
+                Top
             </div>
         </el-backtop>
     </div>

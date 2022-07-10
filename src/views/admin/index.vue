@@ -41,6 +41,7 @@ import { onMounted, reactive } from 'vue'
 import { addBlog } from '@/api'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import axios from 'axios'
 const plugins = [gfm(), highlight(), breaks(), frontmatter(), footnotes(), gemoji(), mediumZoom()]
 
 const router = useRouter()
@@ -62,12 +63,25 @@ const handleChange = (val: any) => {
 
 const uploadImage = async (files: any) => {
     console.log('files', files)
+    const { data: { url } } = await sumbitImage(files[0])
+    console.warn('图片链接', url)
     return [
         {
             title: files.map((i: any) => i.name),
-            url: 'http',
+            url,
         },
     ]
+}
+
+
+const sumbitImage = async (file: any) => {
+    const data = new FormData()
+    data.append('file', file)
+    const result = await axios.post('https://lovehaha.cn/api/qiniu', data, {
+        headers: { 'content-Type': 'multipart/form-data' }
+    })
+    console.log(result)
+    return result?.data
 }
 
 // 这里去提交

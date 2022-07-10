@@ -30,9 +30,12 @@
                             <h4 class="title" v-text="item.title"></h4>
                             <p class="info" v-text="item.desc"></p>
                             <div class="tagbox">
-                                <span class="tag" v-for="tag_value in item.tag">
-                                    {{ tag_value }}
-                                </span>
+                                <div class="tagleft">
+                                    <span class="tag" v-for="tag_value in item.tag">
+                                        {{ tag_value }}
+                                    </span>
+                                </div>
+                                <span class="times">{{ item.ago }}</span>
                             </div>
                         </div>
                     </article>
@@ -41,13 +44,16 @@
             </template>
         </el-skeleton>
 
-        <div class="pages" v-if="!state.loading && !state.empty">
+        <div class="pages" v-if="!state.loading && !state.empty && state.total > 10">
             <el-pagination @current-change="hanldePage" background layout="prev, pager, next" :total="state.total" />
         </div>
 
         <div class="empty" v-if="state.empty">
-            <el-empty :image-size="400"
-            image="https://img.pinkyang.cn/2022.07.08-undraw_Add_notes_re_ln36.png" description="博主很懒，还没写任何博客内容哦" />
+            <el-empty
+                :image-size="400"
+                image="https://img.pinkyang.cn/2022.07.08-undraw_Add_notes_re_ln36.png"
+                description="博主很懒，还没写任何博客内容哦"
+            />
         </div>
     </div>
 </template>
@@ -72,7 +78,7 @@ const state = reactive({
     pageIndex: <number>1,
     total: <number>0,
     menu: <menulist[]>[],
-    empty: <boolean>false
+    empty: <boolean>false,
 })
 
 onMounted(() => {
@@ -102,7 +108,6 @@ const getList = async () => {
     if (code === 200) {
         state.total = total
         for (let item of data) {
-
             item.tag = JSON.parse(item.tag)
         }
         state.list = data
@@ -191,6 +196,7 @@ const changeTag = (val: menulist) => {
         background-color: $white;
         padding: 0 20px;
         @include flex-auto(center, space-between);
+        position: relative;
         .el-image {
             width: 200px;
             height: 150px;
@@ -212,19 +218,27 @@ const changeTag = (val: menulist) => {
                 @include font-set($font16, #555, false, 1.4);
             }
             .tagbox {
-                .tag {
-                    margin-right: 10px;
-                    @include font-set($font14, #999, false, 1.4);
+                @include flex-auto(center, space-between);
+                width: 100%;
+                .tagleft {
+                    width: 80%;
+                    .tag {
+                        margin-right: 10px;
+                        @include font-set($font14, #999, false, 1.4);
+                    }
+                }
+                .times {
+                    flex: 1;
+                    text-align: right
                 }
             }
         }
     }
     .pages {
-        @include flex-auto(center, center);
-        // padding-bottom: 20px;
         position: absolute;
         bottom: 0;
         left: 50%;
+        transform: translate(-50%, -50%);
     }
 
     .empty {
