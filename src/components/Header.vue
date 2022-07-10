@@ -3,9 +3,10 @@
         <div class="safe_area">
             <div class="logo">
                 <router-link tag="h4" to="/">大羊博客</router-link>
-                <a target="_blank" href="https://github.com/Slash214/vite-vue3-lovehaha-webSite">GitHub</a>
+                <a target="_blank" href="https://github.com/Slash214/BigYangBlog">GitHub</a>
                 <router-link tag="a" to="/about">关于项目</router-link>
                 <router-link tag="a" to="/admin" v-if="isLogin">增加博客</router-link>
+                <router-link tag="a" to="/tag" v-if="isLogin">博客标签</router-link>
             </div>
             <div class="link">
                 <el-button v-if="!isLogin" type="success" plain @click="changeDialog">管理员登录</el-button>

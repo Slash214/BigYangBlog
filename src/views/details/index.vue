@@ -45,13 +45,13 @@
                     <el-divider style="margin: 10px 0" />
                     <ul class="menu_content">
                         <!-- <template > -->
-                        <li
+                        <a 
+                            @click="locationTxt(v, key)"
                             v-for="(v, key) of state.hast"
-                            @click="gotoIndex(v)"
-                            :class="v.active ? `tree_list active  level${v.level}` : `tree_list level${v.level}`"
+                            :class="state.headNum === key ? `tree_list active  level${v.level}` : `tree_list level${v.level}`"
                         >
                             {{ v.text }}
-                        </li>
+                        </a>
                         <!-- </template> -->
                     </ul>
                 </div>
@@ -67,6 +67,9 @@ import { onMounted, reactive, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { getProcessor } from 'bytemd'
+import { nextTick } from 'vue'
+import { findIndex } from 'lodash'
+import loadsh from 'lodash'
 
 const route = useRoute()
 const state = reactive({
@@ -75,11 +78,12 @@ const state = reactive({
     blogId: <number>0,
     commentList: <any[]>[],
     article: <{ title: string; time: string; author: string }>{},
-    scroll: <number>0,
-    scrollTop: <number>0,
+
+
     minLevel: <number>1,
     headNum: <number>0,
     hast: <any>[],
+    itemOffsetTop: <any>[],
 })
 
 onMounted(async () => {
@@ -96,12 +100,11 @@ onMounted(async () => {
     console.log(data, code)
     if (code === 200) {
         state.content = data.content
-        // console.warn(data.content)
     }
     _gainComment()
     _initTree()
-    window.addEventListener('scroll', handleScroll, true)
-    setIdInDom()
+
+    window.addEventListener('scroll', onScroll,true) 
 })
 
 const _gainComment = async () => {
@@ -150,8 +153,7 @@ const handleComment = async () => {
 
 const _initTree = () => {
     const stringifyHeading = function (e: { children: []; position: {} }) {
-        let result: any = '',
-            location: number | string = ''
+        let result: any = ''
         // console.log('loadimg', e)
         e.children.forEach((item: any) => {
             if (item.type === 'text') {
@@ -176,53 +178,98 @@ const _initTree = () => {
                                         state.minLevel = Math.min(state.minLevel, i)
                                         items.push({
                                             level: i,
-                                            text: stringifyHeading(node),
-                                            active: false,
-                                            anchor: node?.position?.start?.offset,
+                                            text: stringifyHeading(node)
                                         })
                                     }
                                 })
                             state.hast = items.filter((v: any) => v.level === 1 || v.level === 2 || v.level === 3)
-                            // this.$nextTick(() => {
-                            // this.transformToId();
-                            // this.calculateOffTop();
-                            // })
+                            nextTick(() => {
+                                transformToId()
+                                calculateOffTop()
+                            })
                         }
                     }),
             },
         ],
     }).processSync(state.content)
-    state.hast[0].active = true
-    console.error(state.hast)
+
+    // console.error(state.hast)
+    // console.error(state.content)
 }
 
-const gotoIndex = (val: any) => {
-    console.log(val)
-    let scroll = document.documentElement.scrollTop || document.body.scrollTop
-    console.log(scroll)
-    document.documentElement.scrollTop = 100
+// 计算dom高度
+const calculateOffTop = () => {
+    // let sb = loadsh.throttle(() => {
+        // onScroll()
+    // }, 300)
+    // let nod: any = document.querySelector('.safe_area') || ''
+    // console.error('nod', nod)
+    // nod.addEventListener('scroll', sb())
+    state.hast.forEach((val: any, i: number) => {
+        const firstHead: any = document.querySelector(`#head-${i}`)
+        state.itemOffsetTop.push({
+            key: i,
+            top: firstHead?.offsetTop || 0,
+        })
+    })
+    // console.log('asdasd', state.itemOffsetTop)
 }
 
-const setIdInDom = () => {
-    
+// 定位
+const transformToId = () => {
+    const dom: any = document.querySelector('.markdown-body')
+    // console.log(dom)
+    let children: any = Array.from(dom.children)
+    if (children.length > 0) {
+        // current element has children, look deeper
+        for (let i = 0; i < children.length; i += 1) {
+            const tagName = children[i].tagName
+            if (tagName === 'H1' || tagName === 'H2' || tagName === 'H3') {
+                const index = findIndex(state.hast, (v:any) => v.text === children[i].textContent)
+                if (index >= 0) {
+                    children[i].setAttribute('id', `head-${index}`)
+                }
+            }
+        }
+    }
+    // console.log(children)
 }
 
-const handleScroll = () => {
-    state.scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
-    //变量scrollTop是滚动条滚动时，距离顶部的距离
-    //   var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-    //   //变量windowHeight是可视区的高度
-    //   var windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
-    //   //变量windowHeight是可视区的高度
-    //   var scrollHeight =document.documentElement.scrollHeight || document.body.scrollHeight;
-    // for (let item of state.hast) {
-    //     item.active = false
-    //     if (item.anchor > state.scrollTop) {
-    //         item.active = true
-    //         break
-    //     }
-    // }
-    console.log(state.scrollTop)
+
+const onScroll = () => {
+    // console.log('触发滚动')
+    state.itemOffsetTop = []
+    state.hast.forEach((val: any, i: number) => {
+        const firstHead: any = document.querySelector(`#head-${i}`) 
+        // console.warn('获取的firstHead', firstHead?.offsetTop)
+        state.itemOffsetTop.push({
+            key: i,
+            top: firstHead?.offsetTop,
+        })
+    })
+
+    // const scrollTop: any = document.querySelector('.safe_area')?.scrollTop
+    let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
+    // console.warn('获取的scrollTop', scrollTop)
+    let num = 0
+    for (let n = 0; n < state.itemOffsetTop.length; n++ ) {
+        // console.error('n', n)
+        if (scrollTop >= state.itemOffsetTop[n].top) {
+            num = state.itemOffsetTop[n].key
+        }
+    }
+    state.headNum = num
+
+    // console.error('headNum', state.headNum)
+}
+
+const locationTxt = (item: any, index: number) => {
+    state.headNum = index
+    nextTick(() => {
+        document.querySelector(`#head-${index}`)?.scrollIntoView({
+            behavior: 'smooth',
+        })
+    })
 }
 </script>
 

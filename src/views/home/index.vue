@@ -45,7 +45,7 @@
             <el-pagination @current-change="hanldePage" background layout="prev, pager, next" :total="state.total" />
         </div>
 
-        <div class="empty">
+        <div class="empty" v-if="state.empty">
             <el-empty :image-size="400"
             image="https://img.pinkyang.cn/2022.07.08-undraw_Add_notes_re_ln36.png" description="博主很懒，还没写任何博客内容哦" />
         </div>
@@ -221,7 +221,10 @@ const changeTag = (val: menulist) => {
     }
     .pages {
         @include flex-auto(center, center);
-        padding-bottom: 20px;
+        // padding-bottom: 20px;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
     }
 
     .empty {

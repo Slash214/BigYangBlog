@@ -83,3 +83,19 @@ export const usrLogin = (data: { password: string,  username: string }) => {
 		method: 'POST'
 	})
 }
+
+export const addTag = (data: { name: string }) => {
+	return request({
+		url: `${baseURL}/blog/addtag`,
+		data,
+		method: 'POST'
+	})
+}
+
+export const removeTag = (params: { id: number }) => {
+	return request({
+		url: `${baseURL}/blog/tagdel`,
+		params,
+		method: 'GET'
+	})
+}

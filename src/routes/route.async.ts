@@ -20,6 +20,11 @@ const RouteAsync: Array<RouteRecordRaw> = [
 		path: '/admin',
 		meta: { title: '管理员操作面板', footer: false, header: false },
 		component: () => import('views/admin/index.vue')
+	},
+	{
+		path: '/tag',
+		meta: { title: '博客网站标签管理', footer: false, header: true },
+		component: () => import('views/tag/index.vue')
 	}
 ]
 
