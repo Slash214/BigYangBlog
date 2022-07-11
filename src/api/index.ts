@@ -7,7 +7,7 @@ console.log(env)
 const urls = new Map<string, any>([
 	['dev', 'http://127.0.0.1:4500'],
 	['test','http://127.0.0.1:4523/m1/532983-0-default'],
-	['production', 'http://yjpsix.com/api'],
+	['production', 'https://yjpsix.com/api'],
 ])
 
 if (urls.get(env)) baseURL = urls.get(env)
