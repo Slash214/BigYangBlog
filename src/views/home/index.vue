@@ -70,6 +70,12 @@ interface menulist {
     checked?: boolean
 }
 
+interface req {
+    pageIndex: number,
+    pageSize: number,
+    tag?: string
+}
+
 const router = useRouter()
 const state = reactive({
     list: <blogList[]>[],
@@ -86,16 +92,18 @@ onMounted(() => {
     getTagMenu()
 })
 
-const getList = async () => {
+const getList = async (tag?: string) => {
+    let reqBody: req  = {
+        pageIndex: state.pageIndex,
+        pageSize: state.pageSize,
+    }
+    if (tag && tag !== '全部') reqBody['tag'] = tag
     const {
         code,
         data,
         message,
         total = 0,
-    } = await getBlog({
-        pageIndex: state.pageIndex,
-        pageSize: state.pageSize,
-    })
+    } = await getBlog(reqBody)
 
     if (message || data.length === 0) {
         console.error('请求异常')
@@ -156,6 +164,10 @@ const changeTag = (val: menulist) => {
         e.checked = false
         if (val.id === e.id) e.checked = true
     })
+
+    console.error('2', val)
+    state.list = []
+    getList(val.name)
 }
 </script>
 
