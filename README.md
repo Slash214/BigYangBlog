@@ -22,7 +22,7 @@
 1：vue语法
 
 #####  安装使用
-1 git clone https://github.com/Slash214/BigYangBlog.git
-2 cd BigYangBlog
-3 npm install 
-4 npm run dev
+-   git clone https://github.com/Slash214/BigYangBlog.git
+-   cd BigYangBlog
+-   npm install 
+-   npm run dev
