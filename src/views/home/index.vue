@@ -116,6 +116,8 @@ const getList = async (tag?: string) => {
     if (code === 200) {
         state.total = total
         for (let item of data) {
+            console.log(item.tag)
+
             item.tag = JSON.parse(item.tag)
         }
         state.list = data

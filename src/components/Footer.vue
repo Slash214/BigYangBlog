@@ -1,7 +1,7 @@
 <template>
 	<footer class="footers">
 		<div class="safe_area">
-			<a href="#">大羊博客@记录 开发笔记</a>
+			<a href="#">爱呵呵个人博客@记录 开发笔记</a>
 		</div>
 	</footer>
 </template>
