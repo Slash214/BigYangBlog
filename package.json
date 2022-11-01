@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite --mode dev",
     "test": "vite --mode test",
+    "prd": "vite --mode production",
     "build": "vue-tsc --noEmit && vite build --mode production",
     "preview": "vite preview"
   },
