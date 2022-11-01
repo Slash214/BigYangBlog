@@ -14,7 +14,7 @@
     <div class="safe_area" :style="{ background: state.loading ? 'none' : '#fff' }">
         <el-skeleton :loading="state.loading" animated>
             <template #template>
-                <article class="list" style="height: 190px; padding: 20px" v-for="item in 1" :key="item">
+                <article class="list" style="height: 270px; padding: 30px" v-for="item in 1" :key="item">
                     <el-skeleton-item class="el-image" variant="image" />
                     <div class="desc">
                         <el-skeleton-item variant="text" class="title" />
@@ -32,9 +32,18 @@
                             <p class="info" v-text="item.desc"></p>
                             <div class="tagbox">
                                 <div class="tagleft">
-                                    <span class="tag" v-for="tag_value in item.tag">
+                                    <!-- <span class="tag" v-for="tag_value in item.tag">
                                         {{ tag_value }}
-                                    </span>
+                                    </span> -->
+                                    <el-tag
+                                        v-for="(tag_value, idx) in item.tag"
+                                        :key="tag_value"
+                                        :type="tagStyle(idx)"
+                                        effect="dark"
+                                        round
+                                    >
+                                        {{ tag_value }}
+                                    </el-tag>
                                 </div>
                                 <span class="times">{{ item.ago }}</span>
                             </div>
@@ -60,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { getBlog, getTag, searchBlog } from '@/api'
 import { useRouter } from 'vue-router'
 import { blogList } from '@/typings'
@@ -79,6 +88,8 @@ interface req {
     tag?: string
 }
 
+
+
 let words = ref('')
 const router = useRouter()
 const state = reactive({
@@ -96,14 +107,12 @@ onMounted(() => {
     getTagMenu()
 })
 
-
 const searchInfo = async () => {
     if (!words.value) {
         ElMessage.warning('搜索内容不能为空')
         return
     }
 
-    
     const { data, code, total = 0 } = await searchBlog({ words: words.value })
 
     if (!data.length && !total) {
@@ -208,6 +217,16 @@ const changeTag = (val: menulist) => {
     state.list = []
     getList(val.name)
 }
+
+const tagStyle = (key: number) => {
+    if (key === 0) return 'success'
+    if (key === 1) return 'info'
+    if (key === 2) return 'danger'
+    if (key === 3) return 'warning'
+    if (key >= 4) return ''
+} 
+
+
 </script>
 
 <style scoped lang="scss">
@@ -247,20 +266,20 @@ const changeTag = (val: menulist) => {
         &:first-child {
             padding-top: 20px;
         }
-        height: 150px;
         background-color: $white;
-        padding: 0 20px;
+        padding: 0 30px;
         @include flex-auto(center, space-between);
         position: relative;
         .el-image {
-            width: 200px;
-            height: 150px;
+            width: 270px;
+            height: 210px;
             border-radius: $br-s;
         }
         .desc {
             flex: 1;
-            height: 100%;
+            height: 210px;
             padding: 10px 0;
+            line-height: 1.5;
             @include flex-auto(false, space-between, column);
             margin-left: 40px;
             text-align: justify;
@@ -269,17 +288,16 @@ const changeTag = (val: menulist) => {
                 @include font-set($font20, #1a1a1a, 500, 1.5);
             }
             .info {
-                @include text-hidden(2);
-                @include font-set($font16, #555, false, 1.4);
+                @include text-hidden(3);
+                @include font-set($font16, #888, false, 1.5);
             }
             .tagbox {
                 @include flex-auto(center, space-between);
                 width: 100%;
                 .tagleft {
                     width: 80%;
-                    .tag {
+                    .el-tag {
                         margin-right: 10px;
-                        @include font-set($font14, #999, false, 1.4);
                     }
                 }
                 .times {
