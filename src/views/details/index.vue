@@ -5,7 +5,7 @@
                 <el-breadcrumb :separator-icon="ArrowRight">
                     <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
                     <el-breadcrumb-item :to="{ path: `/article/${state.blogId}` }">博客详情</el-breadcrumb-item>
-                    <!-- <el-breadcrumb-item :to="{ path: `/article/${state.blogId}` }">返回</el-breadcrumb-item> -->
+                    <el-breadcrumb-item @click="router.back">返回上一页</el-breadcrumb-item>
                 </el-breadcrumb>
                 <h1 class="title mb20 mt20">{{ state.article.title }}</h1>
                 <div class="info">

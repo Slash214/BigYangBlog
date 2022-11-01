@@ -92,3 +92,11 @@ export const removeTag = (params: { id: number }) => {
 		method: 'GET'
 	})
 }
+
+export const searchBlog = (params: { words?: string, tag?: string }) => {
+	return request({
+		url: `${baseURL}/blog/search`,
+		params,
+		method: 'GET'
+	})
+}

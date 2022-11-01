@@ -3,7 +3,7 @@ import { RouteRecordRaw } from "vue-router";
 const RouteAsync: Array<RouteRecordRaw> = [
 	{
 		path: '/',
-		meta: { title: '爱呵呵博客', footer: true, header: true },
+		meta: { title: '爱呵呵博客', footer: true, header: true, keepAlive: true },
 		component: () => import('views/home/index.vue')
 	},
 	{
