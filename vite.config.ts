@@ -29,6 +29,12 @@ export default defineConfig({
       assets: pathResolve('./src/assets')
     }
   },
+  build: {
+    minify: 'esbuild'
+  },
+  esbuild: {
+    drop: ['console', 'debugger']
+  },
   css: {
     preprocessorOptions: {
       scss: {
