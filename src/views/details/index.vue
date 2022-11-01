@@ -5,16 +5,18 @@
                 <el-breadcrumb :separator-icon="ArrowRight">
                     <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
                     <el-breadcrumb-item :to="{ path: `/article/${state.blogId}` }">博客详情</el-breadcrumb-item>
+                    <el-breadcrumb-item @click="router.back">返回上一页</el-breadcrumb-item>
                 </el-breadcrumb>
                 <h1 class="title mb20 mt20">{{ state.article.title }}</h1>
                 <div class="info">
-                    <el-avatar :size="50" src="https://img.pinkyang.cn/2022.07.01-girl.jpeg" />
+                    <el-avatar :size="50" src="https://img.pinkyang.cn/2022.07.09-4403.jpg" />
                     <div class="user">
                         <span>{{ state.article.author }}</span>
-                        <time>{{ state.article.time }}</time>
+                        <time>{{ state.article.createdAt }}</time>
                     </div>
-                    <el-button type="primary" plain>+点赞</el-button>
+                    <!-- <el-button type="primary" plain>+点赞</el-button> -->
                 </div>
+                <div class="update-text" v-if="state.flag" @click="updateDetails">修改</div>
             </div>
             <div class="blog_content whites">
                 <MdViewer :value="state.content" />
@@ -45,10 +47,14 @@
                     <el-divider style="margin: 10px 0" />
                     <ul class="menu_content">
                         <!-- <template > -->
-                        <a 
+                        <a
                             @click="locationTxt(v, key)"
                             v-for="(v, key) of state.hast"
-                            :class="state.headNum === key ? `tree_list active  level${v.level}` : `tree_list level${v.level}`"
+                            :class="
+                                state.headNum === key
+                                    ? `tree_list active  level${v.level}`
+                                    : `tree_list level${v.level}`
+                            "
                         >
                             {{ v.text }}
                         </a>
@@ -61,24 +67,26 @@
 </template>
 
 <script setup lang="ts">
-import { getBlogDetails, getComment, addComment, getAvatar, getNickname } from '@/api'
+import { getBlogDetails, getComment, addComment } from '@/api'
 import { ElMessage } from 'element-plus'
-import { onMounted, reactive, watch, watchEffect } from 'vue'
-import { useRoute } from 'vue-router'
+import { onMounted, reactive } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { getProcessor } from 'bytemd'
 import { nextTick } from 'vue'
 import { findIndex } from 'lodash'
-import loadsh from 'lodash'
 
 const route = useRoute()
+const router = useRouter()
+
+
 const state = reactive({
     remake: <string>'',
     content: <any>``,
     blogId: <number>0,
     commentList: <any[]>[],
-    article: <{ title: string; time: string; author: string }>{},
-
+    article: <{ title: string; createdAt: string; author: string }>{},
+    flag: <boolean>false,
 
     minLevel: <number>1,
     headNum: <number>0,
@@ -87,24 +95,30 @@ const state = reactive({
 })
 
 onMounted(async () => {
-    let item = localStorage.getItem('lovehehe_article')
-    if (item) {
-        state.article = JSON.parse(item)
-        // console.error(state.article)
-    }
+    let userInfo = localStorage.getItem('BigYangBlog_userinfo')
+    // let item = localStorage.getItem('lovehehe_article')
+    // 标题
+    // if (item) { state.article = JSON.parse(item) } 
 
+    if (userInfo) {
+        console.log('userInfo', )  
+        let user = JSON.parse(userInfo)
+        state.flag = user?.id ? true : false
+    }
+  
     let id = route.params.id
     state.blogId = +route.params.id
     console.log(route.params)
-    const { data, code } = await getBlogDetails({ blogid: +id })
-    console.log(data, code)
+    const { data: { info, detail }, code } = await getBlogDetails({ blogid: +id, type: 'update' })
     if (code === 200) {
-        state.content = data.content
+        console.log('data', detail, info)
+        state.content = detail.content
+        state.article = info
     }
     _gainComment()
     _initTree()
 
-    window.addEventListener('scroll', onScroll,true) 
+    window.addEventListener('scroll', onScroll, true)
 })
 
 const _gainComment = async () => {
@@ -125,16 +139,8 @@ const handleComment = async () => {
         return
     }
 
-    let avatar = '',
-        nickname = ''
-    const result = await getAvatar({ size: 70 })
-    const r2 = await getNickname()
-
-    console.log('r2昵称', r2)
-    console.log('result', result)
-    avatar = result?.data.name || ''
-    nickname = r2?.data?.name || ''
-    // return
+    let avatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+        nickname = '默认昵称'
     const { data, message, code } = await addComment({
         nickname,
         content: state.remake,
@@ -165,7 +171,7 @@ const _initTree = () => {
     getProcessor({
         plugins: [
             {
-                rehype: p =>
+                rehype: (p) =>
                     p.use(() => (tree: any) => {
                         console.log(tree)
                         if (tree && tree.children.length) {
@@ -178,7 +184,7 @@ const _initTree = () => {
                                         state.minLevel = Math.min(state.minLevel, i)
                                         items.push({
                                             level: i,
-                                            text: stringifyHeading(node)
+                                            text: stringifyHeading(node),
                                         })
                                     }
                                 })
@@ -200,7 +206,7 @@ const _initTree = () => {
 // 计算dom高度
 const calculateOffTop = () => {
     // let sb = loadsh.throttle(() => {
-        // onScroll()
+    // onScroll()
     // }, 300)
     // let nod: any = document.querySelector('.safe_area') || ''
     // console.error('nod', nod)
@@ -225,7 +231,7 @@ const transformToId = () => {
         for (let i = 0; i < children.length; i += 1) {
             const tagName = children[i].tagName
             if (tagName === 'H1' || tagName === 'H2' || tagName === 'H3') {
-                const index = findIndex(state.hast, (v:any) => v.text === children[i].textContent)
+                const index = findIndex(state.hast, (v: any) => v.text === children[i].textContent)
                 if (index >= 0) {
                     children[i].setAttribute('id', `head-${index}`)
                 }
@@ -235,12 +241,11 @@ const transformToId = () => {
     // console.log(children)
 }
 
-
 const onScroll = () => {
     // console.log('触发滚动')
     state.itemOffsetTop = []
     state.hast.forEach((val: any, i: number) => {
-        const firstHead: any = document.querySelector(`#head-${i}`) 
+        const firstHead: any = document.querySelector(`#head-${i}`)
         // console.warn('获取的firstHead', firstHead?.offsetTop)
         state.itemOffsetTop.push({
             key: i,
@@ -252,7 +257,7 @@ const onScroll = () => {
     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
     // console.warn('获取的scrollTop', scrollTop)
     let num = 0
-    for (let n = 0; n < state.itemOffsetTop.length; n++ ) {
+    for (let n = 0; n < state.itemOffsetTop.length; n++) {
         // console.error('n', n)
         if (scrollTop >= state.itemOffsetTop[n].top) {
             num = state.itemOffsetTop[n].key
@@ -271,6 +276,17 @@ const locationTxt = (item: any, index: number) => {
         })
     })
 }
+
+/**
+ * 修改详情
+ */
+const updateDetails = () => {
+    console.log(state.article)
+    console.log('内容', state.content)
+    router.push(`/admin/${state.blogId}`)
+}
+
+
 </script>
 
 <style scoped lang="scss">
@@ -286,22 +302,33 @@ const locationTxt = (item: any, index: number) => {
         }
         .blog_title {
             margin-top: 20px;
+            position: relative;
             .title {
                 @include font-set($font32, #222, 600, 1.3);
             }
             .info {
-                @include flex-auto(center, space-between);
+                @include flex-auto(center);
             }
             .user {
                 width: 87%;
                 height: 40px;
+                margin-left: 20px;
                 @include flex-auto(false, space-between, column);
                 span {
                     @include font-set($font16, #515151, false, 1.4);
                 }
                 time {
+                    padding-top: 6px;
                     @include font-set($font14, #8a8a8a, false, 1.4);
                 }
+            }
+            .update-text {
+                position: absolute;
+                right: 20px;
+                top: 30px;
+                cursor: pointer;
+                color: #1e80ff;
+                font-weight: 600;
             }
         }
         .blog_comment {

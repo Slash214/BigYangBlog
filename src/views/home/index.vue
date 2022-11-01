@@ -1,5 +1,6 @@
 <template>
     <div class="menu">
+        <el-input v-model="words" @keyup.enter.native="searchInfo" placeholder="搜索文章" :suffix-icon="Search" />
         <el-tag
             size="large"
             :class="item.checked ? 'active' : ''"
@@ -52,17 +53,19 @@
             <el-empty
                 :image-size="400"
                 image="https://img.pinkyang.cn/2022.07.08-undraw_Add_notes_re_ln36.png"
-                description="博主很懒，还没写任何博客内容哦"
+                description="博主很懒，还没写相关的博客内容哦"
             />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive } from 'vue'
-import { getBlog, getTag } from '@/api'
+import { onMounted, reactive, ref } from 'vue'
+import { getBlog, getTag, searchBlog } from '@/api'
 import { useRouter } from 'vue-router'
 import { blogList } from '@/typings'
+import { Search } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 interface menulist {
     id: number
@@ -70,6 +73,13 @@ interface menulist {
     checked?: boolean
 }
 
+interface req {
+    pageIndex: number
+    pageSize: number
+    tag?: string
+}
+
+let words = ref('')
 const router = useRouter()
 const state = reactive({
     list: <blogList[]>[],
@@ -86,16 +96,45 @@ onMounted(() => {
     getTagMenu()
 })
 
-const getList = async () => {
-    const {
-        code,
-        data,
-        message,
-        total = 0,
-    } = await getBlog({
+
+const searchInfo = async () => {
+    if (!words.value) {
+        ElMessage.warning('搜索内容不能为空')
+        return
+    }
+
+    
+    const { data, code, total = 0 } = await searchBlog({ words: words.value })
+
+    if (!data.length && !total) {
+        state.empty = true
+        state.list = []
+        return
+    }
+
+    if (code === 200) {
+        state.empty = false
+        state.total = total
+        for (let item of data) {
+            console.log(item.tag)
+            item.tag = JSON.parse(item.tag)
+        }
+        state.list = data
+        setTimeout(() => {
+            state.loading = false
+        }, 1000)
+        console.warn(state.list)
+    }
+    console.log(data)
+}
+
+const getList = async (tag?: string) => {
+    let reqBody: req = {
         pageIndex: state.pageIndex,
         pageSize: state.pageSize,
-    })
+    }
+    if (tag && tag !== '全部') reqBody['tag'] = tag
+    const { code, data, message, total = 0 } = await getBlog(reqBody)
 
     if (message || data.length === 0) {
         console.error('请求异常')
@@ -106,8 +145,10 @@ const getList = async () => {
     }
 
     if (code === 200) {
+        state.empty = false
         state.total = total
         for (let item of data) {
+            console.log(item.tag)
             item.tag = JSON.parse(item.tag)
         }
         state.list = data
@@ -147,15 +188,25 @@ const gotoDetails = (val: blogList) => {
 const hanldePage = (pageIndex: number) => {
     console.log(pageIndex)
     state.pageIndex = pageIndex
+
+    if (words.value) {
+        searchInfo()
+        return
+    }
     getList()
     document.documentElement.scrollTop = 0
 }
 
 const changeTag = (val: menulist) => {
-    state.menu.map(e => {
+    state.menu.map((e) => {
         e.checked = false
         if (val.id === e.id) e.checked = true
     })
+
+    console.error('2', val)
+    words.value = ''
+    state.list = []
+    getList(val.name)
 }
 </script>
 
@@ -168,6 +219,10 @@ const changeTag = (val: menulist) => {
     padding: 20px;
     background-color: $white;
     cursor: pointer;
+    .el-input {
+        width: 250px;
+        margin-right: 20px;
+    }
     .null_tag {
         @include font-set($font14, #777, 400, 1.5);
         padding: 0 0 0 10px;
@@ -229,7 +284,7 @@ const changeTag = (val: menulist) => {
                 }
                 .times {
                     flex: 1;
-                    text-align: right
+                    text-align: right;
                 }
             }
         }

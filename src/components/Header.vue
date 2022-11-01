@@ -2,17 +2,25 @@
     <header class="headers">
         <div class="safe_area">
             <div class="logo">
-                <router-link tag="h4" to="/">大羊博客</router-link>
+                <router-link tag="h4" to="/">爱呵呵博客</router-link>
                 <a target="_blank" href="https://github.com/Slash214/BigYangBlog">GitHub</a>
                 <router-link tag="a" to="/about">关于项目</router-link>
-                <router-link tag="a" to="/admin" v-if="isLogin">增加博客</router-link>
+                <router-link tag="a" to="/admin/0" v-if="isLogin">增加博客</router-link>
                 <router-link tag="a" to="/tag" v-if="isLogin">博客标签</router-link>
             </div>
             <div class="link">
                 <el-button v-if="!isLogin" type="success" plain @click="changeDialog">管理员登录</el-button>
-                <div v-else class="info">
+                <div class="info" v-else>
                     <el-avatar :src="userinfo.avatar" :size="45"></el-avatar>
-                    <span>{{ userinfo.nickname }}</span>
+
+                    <el-dropdown>
+                        <span>{{ userinfo.nickname }}</span>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item @click="loginOut">退出登陆</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
                 </div>
             </div>
         </div>
@@ -41,6 +49,7 @@
 import { ElMessage } from 'element-plus'
 import { onMounted, ref } from 'vue'
 import { usrLogin } from '@/api'
+import { pa } from 'element-plus/es/locale';
 
 
 const dialogVisible = ref<boolean>(false)
@@ -48,6 +57,8 @@ const username = ref<string>('')
 const password = ref<string>('')
 const isLogin = ref<boolean>(false)
 const userinfo = ref<any>({})
+const count = ref(0)
+const t = ref<any>(null)
 
 onMounted(() => {
     const token = localStorage.getItem('BigYangBlog_Token')
@@ -60,8 +71,21 @@ onMounted(() => {
 })
 
 const login = async () => {
+
+    if (!username.value || !password.value) {
+        ElMessage.warning('登陆账号密码不能为空')
+        return
+    }
     console.log('登录')
     console.log(username.value, password.value)
+
+    if (count.value >= 3) {
+        ElMessage.error('登陆错误10次, 请稍后重试')
+        t.value = setTimeout(() => {
+            count.value = 0
+        }, 10000);
+        return
+    }
     const { data, code, message } = await usrLogin({
         username: username.value,
         password: password.value,
@@ -70,6 +94,8 @@ const login = async () => {
     if (message && code !== 200) {
         ElMessage.error(message)
         isLogin.value = false
+        count.value++
+        console.log(count.value)
         return
     }
 
@@ -81,6 +107,7 @@ const login = async () => {
     localStorage.setItem('BigYangBlog_userinfo', JSON.stringify(item))
     console.log('data', data)
     ElMessage.success('登陆成功... 正在重新加载...')
+    clearTimeout(t.value)
     setTimeout(() => {
         changeDialog()
         isLogin.value = true
@@ -90,6 +117,14 @@ const login = async () => {
 const changeDialog = () => {
     dialogVisible.value = !dialogVisible.value
 }
+
+const loginOut = () => {
+    localStorage.removeItem('BigYangBlog_userinfo')
+    localStorage.removeItem('BigYangBlog_Token')
+    location. reload()
+}
+
+
 </script>
 
 <style scoped lang="scss">
@@ -122,9 +157,10 @@ const changeDialog = () => {
         .link {
             .info {
                 @include flex-auto(center);
+                margin-top: 6px;
                 span {
                     padding-left: 10px;
-                    color: #6fccee
+                    color: #6fccee;
                 }
             }
         }

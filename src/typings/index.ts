@@ -23,5 +23,8 @@ export interface blog {
 	content: string,
 	cover: string,
 	desc: string
-	tag: string
+	tag: string,
+	author?: string,
+	look?: number,
+	id?: number
 }

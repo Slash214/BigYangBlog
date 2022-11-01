@@ -37,7 +37,7 @@ export function getTag() {
 }
 
 
-export function getBlogDetails(params: { blogid: number }) {
+export function getBlogDetails(params: { blogid: number, type: string  }) {
 	return request({
 		url: `${baseURL}/blog/detail`,
 		method: 'GET',
@@ -61,18 +61,11 @@ export const addComment = (data: comment) => {
 	})
 }
 
-export const getAvatar = (params: { size?: number }) => {
+export const updateBlog = (data: blog) => {
 	return request({
-		url: `${baseURL}/random/avatar`,
-		method: 'GET',
-		params
-	})
-}
-
-export const getNickname = () => {
-	return request({
-		url: `${baseURL}/random/nickname`,
-		method: 'GET',
+		url: `${baseURL}/blog/fix`,
+		method: 'PUT',
+		data
 	})
 }
 
@@ -95,6 +88,14 @@ export const addTag = (data: { name: string }) => {
 export const removeTag = (params: { id: number }) => {
 	return request({
 		url: `${baseURL}/blog/tagdel`,
+		params,
+		method: 'GET'
+	})
+}
+
+export const searchBlog = (params: { words?: string, tag?: string }) => {
+	return request({
+		url: `${baseURL}/blog/search`,
 		params,
 		method: 'GET'
 	})

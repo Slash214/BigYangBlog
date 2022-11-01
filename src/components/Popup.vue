@@ -15,23 +15,8 @@
             </div>
             <div class="item">
                 <p>文章封面：</p>
-                <el-upload
-                    class="avatar-uploader"
-                    action="https://lovehaha.cn/api/qiniu"
-                    :show-file-list="false"
-                    :on-success="handleAvatarSuccess"
-                    :before-upload="beforeAvatarUpload"
-                    :on-progress="OnProgress"
-                >
-                    <img v-if="state.imageUrl" :src="state.imageUrl" class="avatar" />
-                    <div class="box" v-else-if="state.percentage">
-                        <el-progress class="progress" :percentage="state.percentage" />
-                    </div>
-                    <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-                    <div @click.stop="DeleteImage" v-if="state.imageUrl" class="delete">
-                        <el-icon><Delete /></el-icon>
-                    </div>
-                </el-upload>
+                <img v-if="state.imageUrl" :src="state.imageUrl" class="avatar" />
+                <p class="btn_image" @click="genImage">{{ state.imageUrl ? '更换图片' : '生成图片' }}</p>
             </div>
             <div class="item">
                 <p>编辑摘要：</p>
@@ -54,15 +39,16 @@
 
 <script setup lang="ts">
 import { getTag } from '@/api'
-import { onMounted, reactive } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Plus, Delete } from '@element-plus/icons-vue'
-import type { UploadProps } from 'element-plus'
+import axios from 'axios'
+// 图片通过axios请求链接
 
 interface select {
     label: string
     value: number | string
 }
+
 
 const state = reactive({
     options: <select[]>[],
@@ -75,10 +61,12 @@ const state = reactive({
 const emits = defineEmits(['onCancel', 'onSuccess'])
 const props = defineProps({
     show: Boolean,
+    updateData: <any>{},
 })
 
 onMounted(async () => {
     const { data, code } = await getTag()
+
     if (code === 200) {
         console.log(data)
         let arr = []
@@ -88,8 +76,13 @@ onMounted(async () => {
                 value: item.name,
             })
         }
-
         state.options = arr
+    }
+
+    if (props.updateData?.id) {
+        state.imageUrl = props.updateData?.cover
+        state.desc = props.updateData?.desc
+        state.currentValue = JSON.parse(props.updateData?.tag)
     }
 })
 
@@ -98,9 +91,9 @@ const cancel = () => {
 }
 
 const send = () => {
-	let { currentValue, imageUrl, desc } = state
+    let { currentValue, imageUrl, desc } = state
 
-	console.log(currentValue)
+    console.log(currentValue)
     if (!currentValue.length || !imageUrl || !desc) {
         ElMessage.warning('请保证标签和封面以及编辑摘要填写完整')
         return
@@ -111,30 +104,17 @@ const send = () => {
     emits('onSuccess', item)
 }
 
-const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
-	console.log(response)
-	let { code, data } = response
-	console.log('图片上传成功', code, data)
-	state.imageUrl = data?.url || URL.createObjectURL(uploadFile.raw!)
-}
-
-const beforeAvatarUpload: UploadProps['beforeUpload'] = rawFile => {
-    if (rawFile.type !== 'image/jpeg' && rawFile.type !== 'image/png') {
-        ElMessage.error('Avatar picture must be JPG format!')
-        return false
-    } else if (rawFile.size / 1024 / 1024 > 1) {
-        ElMessage.error('图片尺寸不能大于 1MB!')
-        return false
-    }
-    return true
-}
-
-const OnProgress: UploadProps['onProgress'] = (evt, uploadFiles) => {
-    state.percentage = evt.percent << 0
-}
-
-const DeleteImage = () => {
-	console.log('删除图片', 1)
+const genImage = async () => {
+    const {
+        data: { urls },
+    } = await axios.get('https://api.unsplash.com/photos/random', {
+        params: {
+            client_id: 'hcOvHaEG3wwoKmlttKrvR7cLwRwnF4HC3fV2OVY1a-s',
+            orientation: 'squarish',
+        },
+    })
+    state.imageUrl = urls?.regular || ''
+    console.log('result', state.imageUrl)
 }
 </script>
 
@@ -185,6 +165,11 @@ const DeleteImage = () => {
                 padding: 5px 8px 0 0;
                 color: #1a1a1a;
             }
+            .btn_image {
+                cursor: pointer;
+                color: #1890ff;
+                margin-left: 20px;
+            }
             &:last-child {
                 margin-bottom: 0;
             }
@@ -211,13 +196,13 @@ const DeleteImage = () => {
                 .delete {
                     font-size: 24px;
                     background-color: #ddd;
-					color: #333;
+                    color: #333;
                     position: absolute;
                     top: 0;
                     right: 0;
-					width: 38px;
-					height: 38px;
-					@include flex-auto(center, center);
+                    width: 38px;
+                    height: 38px;
+                    @include flex-auto(center, center);
                 }
             }
             .avatar-uploader .el-upload {

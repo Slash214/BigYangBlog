@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-backtop :bottom="200">
-            <div
+            <!-- <div
                 style="
                     height: 100%;
                     width: 100%;
@@ -13,11 +13,19 @@
                 "
             >
                 Top
-            </div>
+            </div> -->
+            <img src="@/assets/up.png" class="up" alt="">
         </el-backtop>
     </div>
 </template>
 
 <script setup lang="ts"></script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.up {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+</style>

@@ -22,9 +22,14 @@
             :uploadImages="uploadImage"
         />
     </div>
-    <Popup :show="state.flag" @onCancel="onCancel" @onSuccess="sumbit" />
+    <template v-if="state.flag">
+        <Popup :show="state.flag" :update-data="updateData" @onCancel="onCancel" @onSuccess="sumbit" />
+    </template>
 </template>
-
+<!-- qklhk-chocolate.min.css -->
+<!-- mk-cute.min.css -->
+<!-- nico.min.css -->
+<!-- healer-readable.min.css -->
 <script setup lang="ts">
 import 'bytemd/dist/index.css'
 import { Editor } from '@bytemd/vue-next'
@@ -36,24 +41,36 @@ import frontmatter from '@bytemd/plugin-frontmatter'
 import gemoji from '@bytemd/plugin-gemoji'
 import mediumZoom from '@bytemd/plugin-medium-zoom'
 import zhHans from 'bytemd/locales/zh_Hans.json'
-import 'juejin-markdown-themes/dist/juejin.min.css'
-import { onMounted, reactive } from 'vue'
-import { addBlog } from '@/api'
-import { useRouter } from 'vue-router'
+import 'juejin-markdown-themes/dist/scrolls-light.css'
+import { onMounted, reactive, ref } from 'vue'
+import { addBlog, getBlogDetails, updateBlog } from '@/api'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
 const plugins = [gfm(), highlight(), breaks(), frontmatter(), footnotes(), gemoji(), mediumZoom()]
 
+const route = useRoute()
 const router = useRouter()
 const state = reactive({
     value: <string>'',
     maxLength: <number>200,
     title: <string>'',
-    flag: <boolean>false
+    flag: <boolean>false,
+    type: <string>'add',
+    blogId: 0,
 })
+const updateData = ref<any>({})
 
 onMounted(() => {
     console.log('start')
+    let id = route?.params?.id
+    console.log('id', id)
+    // 开始更新的逻辑
+    if (id && id !== '0') {
+        updateInfo(+id)
+        state.blogId = +id
+        state.type = 'update'
+    }
 })
 
 const handleChange = (val: any) => {
@@ -63,7 +80,9 @@ const handleChange = (val: any) => {
 
 const uploadImage = async (files: any) => {
     console.log('files', files)
-    const { data: { url } } = await sumbitImage(files[0])
+    const {
+        data: { url },
+    } = await sumbitImage(files[0])
     console.warn('图片链接', url)
     return [
         {
@@ -73,12 +92,11 @@ const uploadImage = async (files: any) => {
     ]
 }
 
-
 const sumbitImage = async (file: any) => {
     const data = new FormData()
     data.append('file', file)
     const result = await axios.post('https://lovehaha.cn/api/qiniu', data, {
-        headers: { 'content-Type': 'multipart/form-data' }
+        headers: { 'content-Type': 'multipart/form-data' },
     })
     console.log(result)
     return result?.data
@@ -96,12 +114,19 @@ const sumbit = async (item: any) => {
         return
     }
 
+    // 更新逻辑
+    if (state.type === 'update') {
+        let items = JSON.parse(item)
+        fixBlogDetail(items)
+        return
+    }
+
     const { data, code } = await addBlog({
         title,
         desc,
         content: value,
         cover,
-        tag: JSON.stringify(label)
+        tag: JSON.stringify(label),
     })
 
     console.log(data, code)
@@ -110,20 +135,51 @@ const sumbit = async (item: any) => {
         ElMessage.success('增加成功...,正在返回首页')
         setTimeout(() => {
             router.push('/')
-        }, 1000);
+        }, 1000)
     }
-    
 }
 
 const onCancel = () => {
-   state.flag = !state.flag
+    state.flag = !state.flag
 }
-
 
 const gohome = () => {
     router.push('/')
 }
 
+const updateInfo = async (id: number) => {
+    const { data, code } = await getBlogDetails({ blogid: id, type: 'update' })
+    console.log(data)
+    if (code !== 200) {
+        console.log('请求失败')
+        return
+    }
+    let { info, detail } = data || {}
+    state.value = detail?.content
+    state.title = info?.title
+    updateData.value = info
+}
+
+const fixBlogDetail = async (item: any) => {
+    let { value, title, blogId } = state
+    let { desc, cover, label } = item
+    const { data, code } = await updateBlog({
+        id: blogId,
+        title,
+        desc,
+        content: value,
+        cover,
+        tag: JSON.stringify(label),
+    })
+
+    if (code === 200) {
+        ElMessage.success('更新成功...,正在返回首页')
+        setTimeout(() => {
+            console.log(data)
+            router.back()
+        }, 1000)
+    }
+}
 </script>
 
 <style lang="scss">
@@ -165,7 +221,6 @@ const gohome = () => {
             .el-avatar {
                 margin-left: 20px;
             }
-
         }
     }
     .editos {
