@@ -1,8 +1,21 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import { ElMessage } from 'element-plus'
+let baseURL = ''
+const env = import.meta.env.MODE
+console.log(env)
 
+const urls = new Map<string, any>([
+    ['dev', 'http://127.0.0.1:4500'],
+    ['test', 'http://127.0.0.1:4523/m1/532983-0-default'],
+    ['production', ''],
+])
+// vite3 可以直接获取 就不用这样了 import.meta.env.VITE_BASE_URL
+
+
+if (urls.get(env)) baseURL = urls.get(env)
 // 创建实例
 const service: AxiosInstance = axios.create({
+    baseURL,
     timeout: 1000 * 60 * 30,
     headers: {
         'Content-Type': 'application/json'
@@ -12,7 +25,7 @@ const service: AxiosInstance = axios.create({
 // 请求拦截器
 service.interceptors.request.use(
     (config: AxiosRequestConfig) => {
-       return config; 
+        return config;
     },
     (error: AxiosError) => {
         return Promise.reject(error)

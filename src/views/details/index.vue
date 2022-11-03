@@ -19,6 +19,7 @@
             </div>
             <div class="blog_content whites">
                 <MdViewer :value="state.content" />
+                <!-- <Viewer  :value="state.content"></Viewer> -->
             </div>
             <div class="blog_comment whites">
                 <div class="mb20 commentbtns">
@@ -65,10 +66,20 @@
 <script setup lang="ts">
 import { getBlogDetails, getComment, addComment } from '@/api'
 import { ElMessage } from 'element-plus'
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowRight } from '@element-plus/icons-vue'
-import { nextTick } from 'vue'
+// import { Viewer } from '@bytemd/vue-next'
+// 没有样式
+
+
+interface Menu {
+    type: string;
+    txt: string;
+    offsetTop: number;
+    point: string
+}
+
 
 const route = useRoute()
 const router = useRouter()
@@ -83,7 +94,7 @@ const state = reactive({
 })
 
 const cata = reactive({
-    menuData: <any[]>[],
+    menuData: <Menu[]>[],
     menuState: '',
 })
 
@@ -132,12 +143,14 @@ const componentDidMount = () => {
     })
 }
 
+
+
 /**
  * 获取标题锚点
  * 参数nodeArr 表示需要解析目录内容的标题
  */
 const getElement = (nodeArr: string[]) => {
-    let nodeInfo: any[] = []
+    let nodeInfo: Menu[] = []
     const dom: any = document.querySelector('.markdown-body')
     // console.log(dom.childNodes)
     dom.childNodes.forEach((item: any, key: number) => {
