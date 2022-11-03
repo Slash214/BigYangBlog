@@ -42,7 +42,7 @@ import gemoji from '@bytemd/plugin-gemoji'
 import mediumZoom from '@bytemd/plugin-medium-zoom'
 import zhHans from 'bytemd/locales/zh_Hans.json'
 import 'juejin-markdown-themes/dist/scrolls-light.css'
-import { onMounted, reactive, ref } from 'vue'
+import { nextTick, onMounted, reactive, ref } from 'vue'
 import { addBlog, getBlogDetails, updateBlog } from '@/api'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -71,6 +71,13 @@ onMounted(() => {
         state.blogId = +id
         state.type = 'update'
     }
+
+    // 隐藏右边目录
+    // nextTick(() => {
+    //     let rightMenu: any = document.querySelector('.bytemd-toolbar-right')
+    //     console.log(rightMenu)
+    //     rightMenu.style = "display: none;"
+    // })
 })
 
 const handleChange = (val: any) => {
