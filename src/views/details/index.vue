@@ -1,11 +1,11 @@
 <template>
     <div class="safe_area">
-        <div class="left">
+        <div class="left" >
             <div class="blog_title whites">
                 <el-breadcrumb :separator-icon="ArrowRight">
                     <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
                     <el-breadcrumb-item :to="{ path: `/article/${state.blogId}` }">博客详情</el-breadcrumb-item>
-                    <el-breadcrumb-item @click="router.back">返回上一页</el-breadcrumb-item>
+                    <el-breadcrumb-item :to="{ path: '/' }">返回上一页</el-breadcrumb-item>
                 </el-breadcrumb>
                 <h1 class="title mb20 mt20">{{ state.article.title }}</h1>
                 <div class="info">
@@ -14,12 +14,12 @@
                         <span>{{ state.article.author }}</span>
                         <time>{{ state.article.createdAt }}</time>
                     </div>
-                    <!-- <el-button type="primary" plain>+点赞</el-button> -->
                 </div>
                 <div class="update-text" v-if="state.flag" @click="updateDetails">修改</div>
             </div>
             <div class="blog_content whites">
                 <MdViewer :value="state.content" />
+                <!-- <Viewer  :value="state.content"></Viewer> -->
             </div>
             <div class="blog_comment whites">
                 <div class="mb20 commentbtns">
@@ -46,19 +46,16 @@
                     <h3 class="directory">目录</h3>
                     <el-divider style="margin: 10px 0" />
                     <ul class="menu_content">
-                        <!-- <template > -->
-                        <a
-                            @click="locationTxt(v, key)"
-                            v-for="(v, key) of state.hast"
-                            :class="
-                                state.headNum === key
-                                    ? `tree_list active  level${v.level}`
-                                    : `tree_list level${v.level}`
-                            "
-                        >
-                            {{ v.text }}
-                        </a>
-                        <!-- </template> -->
+                        <li v-for="(item, key) of cata.menuData" :key="key"
+                           :style="menuStyle(item.type)"
+                           >
+                            <a
+                                :href="'#' + item.point"
+                                :class="cata.menuState === item.txt ? `tree_list active` : `tree_list`"
+                            >
+                                {{ item.txt }}
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </el-affix>
@@ -69,16 +66,23 @@
 <script setup lang="ts">
 import { getBlogDetails, getComment, addComment } from '@/api'
 import { ElMessage } from 'element-plus'
-import { onMounted, reactive } from 'vue'
+import { onMounted, reactive, ref, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowRight } from '@element-plus/icons-vue'
-import { getProcessor } from 'bytemd'
-import { nextTick } from 'vue'
-import { findIndex } from 'lodash'
+// import { Viewer } from '@bytemd/vue-next'
+// 没有样式
+
+
+interface Menu {
+    type: string;
+    txt: string;
+    offsetTop: number;
+    point: string
+}
+
 
 const route = useRoute()
 const router = useRouter()
-
 
 const state = reactive({
     remake: <string>'',
@@ -87,39 +91,127 @@ const state = reactive({
     commentList: <any[]>[],
     article: <{ title: string; createdAt: string; author: string }>{},
     flag: <boolean>false,
+})
 
-    minLevel: <number>1,
-    headNum: <number>0,
-    hast: <any>[],
-    itemOffsetTop: <any>[],
+const cata = reactive({
+    menuData: <Menu[]>[],
+    menuState: '',
 })
 
 onMounted(async () => {
     let userInfo = localStorage.getItem('BigYangBlog_userinfo')
-    // let item = localStorage.getItem('lovehehe_article')
-    // 标题
-    // if (item) { state.article = JSON.parse(item) } 
 
     if (userInfo) {
-        console.log('userInfo', )  
+        console.log('userInfo')
         let user = JSON.parse(userInfo)
         state.flag = user?.id ? true : false
     }
-  
     let id = route.params.id
     state.blogId = +route.params.id
-    console.log(route.params)
-    const { data: { info, detail }, code } = await getBlogDetails({ blogid: +id, type: 'update' })
+    const {
+        data: { info, detail },
+        code,
+    } = await getBlogDetails({ blogid: +id, type: 'update' })
     if (code === 200) {
-        console.log('data', detail, info)
+        // console.log('data', detail, info)
         state.content = detail.content
         state.article = info
     }
     _gainComment()
-    _initTree()
-
+    componentDidMount()
     window.addEventListener('scroll', onScroll, true)
+
 })
+
+/**
+ * h1 h2 h3 h4 标签样式
+ * @param type 
+ */
+const menuStyle = (type: string) => {
+    let style = {}
+    if (type === 'H2') style = { 'padding-left': 10 + 'px' }
+    if (type === 'H3') style = { 'padding-left': 20 + 'px' }
+    if (type === 'H4') style = { 'padding-left': 30 + 'px' }
+
+    return style
+}
+
+// 重新实现目录的定位
+const componentDidMount = () => {
+    nextTick(() => {
+        getElement(['H1', 'H2', 'H3', 'H4'])
+    })
+}
+
+
+
+/**
+ * 获取标题锚点
+ * 参数nodeArr 表示需要解析目录内容的标题
+ */
+const getElement = (nodeArr: string[]) => {
+    let nodeInfo: Menu[] = []
+    const dom: any = document.querySelector('.markdown-body')
+    // console.log(dom.childNodes)
+    dom.childNodes.forEach((item: any, key: number) => {
+        // console.log(item.nodeName)
+        if (nodeArr.includes(item.nodeName)) {
+            nodeInfo.push({
+                type: item.nodeName,
+                txt: item.innerText,
+                offsetTop: item.offsetTop,
+                point: `target_${key}`,
+            })
+            item.setAttribute('id', `target_${key}`)
+            console.log(item)
+        }
+    })
+
+    cata.menuData = nodeInfo
+    cata.menuState = nodeInfo[0].txt
+    console.log('nodeInfo', nodeInfo)
+
+}
+
+/**
+ * 监听页面开始滚动
+ */
+const onScroll = (e: any) => {
+    // 当前页面滚动的距离
+    let scrollTop = e.target.documentElement.scrollTop || e.target.body.scrollTop
+    // console.log(scrollTop)
+    //变量windowHeight是可视区的高度
+    let windowHeight = document.documentElement.clientHeight || document.body.clientHeight
+    //变量scrollHeight是滚动条的总高度
+    let scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight
+
+    let currentmenu = cata.menuData[0].txt // 设置menuState对象默认值第一个标题
+    for (let item of cata.menuData) {
+        console.log(item.offsetTop)
+        if (scrollTop >= item.offsetTop) {
+            currentmenu = item.txt
+        } else break
+    }
+
+    if (currentmenu !== cata.menuState) {
+        cata.menuState = currentmenu
+    }
+
+    // 如果到底部，就命中最后一个标题
+    if (scrollTop + windowHeight === scrollHeight) {
+        console.log('滚动到底部了')
+        cata.menuState = cata.menuData[cata.menuData.length - 1].txt
+    }
+}
+
+/**
+ * 修改详情
+ */
+const updateDetails = () => {
+    console.log(state.article)
+    console.log('内容', state.content)
+    router.push(`/admin/${state.blogId}`)
+}
 
 const _gainComment = async () => {
     const { data, code, message } = await getComment({ blogid: state.blogId })
@@ -156,136 +248,6 @@ const handleComment = async () => {
         }, 500)
     }
 }
-
-const _initTree = () => {
-    const stringifyHeading = function (e: { children: []; position: {} }) {
-        let result: any = ''
-        // console.log('loadimg', e)
-        e.children.forEach((item: any) => {
-            if (item.type === 'text') {
-                result += item.value
-            }
-        })
-        return result
-    }
-    getProcessor({
-        plugins: [
-            {
-                rehype: (p) =>
-                    p.use(() => (tree: any) => {
-                        console.log(tree)
-                        if (tree && tree.children.length) {
-                            const items: any[] = []
-                            tree.children
-                                .filter((v: any) => v.type === 'element')
-                                .forEach((node: any) => {
-                                    if (node.tagName[0] === 'h' && !!node.children.length) {
-                                        const i = +node.tagName[1]
-                                        state.minLevel = Math.min(state.minLevel, i)
-                                        items.push({
-                                            level: i,
-                                            text: stringifyHeading(node),
-                                        })
-                                    }
-                                })
-                            state.hast = items.filter((v: any) => v.level === 1 || v.level === 2 || v.level === 3)
-                            nextTick(() => {
-                                transformToId()
-                                calculateOffTop()
-                            })
-                        }
-                    }),
-            },
-        ],
-    }).processSync(state.content)
-
-    // console.error(state.hast)
-    // console.error(state.content)
-}
-
-// 计算dom高度
-const calculateOffTop = () => {
-    // let sb = loadsh.throttle(() => {
-    // onScroll()
-    // }, 300)
-    // let nod: any = document.querySelector('.safe_area') || ''
-    // console.error('nod', nod)
-    // nod.addEventListener('scroll', sb())
-    state.hast.forEach((val: any, i: number) => {
-        const firstHead: any = document.querySelector(`#head-${i}`)
-        state.itemOffsetTop.push({
-            key: i,
-            top: firstHead?.offsetTop || 0,
-        })
-    })
-    // console.log('asdasd', state.itemOffsetTop)
-}
-
-// 定位
-const transformToId = () => {
-    const dom: any = document.querySelector('.markdown-body')
-    // console.log(dom)
-    let children: any = Array.from(dom.children)
-    if (children.length > 0) {
-        // current element has children, look deeper
-        for (let i = 0; i < children.length; i += 1) {
-            const tagName = children[i].tagName
-            if (tagName === 'H1' || tagName === 'H2' || tagName === 'H3') {
-                const index = findIndex(state.hast, (v: any) => v.text === children[i].textContent)
-                if (index >= 0) {
-                    children[i].setAttribute('id', `head-${index}`)
-                }
-            }
-        }
-    }
-    // console.log(children)
-}
-
-const onScroll = () => {
-    // console.log('触发滚动')
-    state.itemOffsetTop = []
-    state.hast.forEach((val: any, i: number) => {
-        const firstHead: any = document.querySelector(`#head-${i}`)
-        // console.warn('获取的firstHead', firstHead?.offsetTop)
-        state.itemOffsetTop.push({
-            key: i,
-            top: firstHead?.offsetTop,
-        })
-    })
-
-    // const scrollTop: any = document.querySelector('.safe_area')?.scrollTop
-    let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
-    // console.warn('获取的scrollTop', scrollTop)
-    let num = 0
-    for (let n = 0; n < state.itemOffsetTop.length; n++) {
-        // console.error('n', n)
-        if (scrollTop >= state.itemOffsetTop[n].top) {
-            num = state.itemOffsetTop[n].key
-        }
-    }
-    state.headNum = num
-
-    // console.error('headNum', state.headNum)
-}
-
-const locationTxt = (item: any, index: number) => {
-    state.headNum = index
-    nextTick(() => {
-        document.querySelector(`#head-${index}`)?.scrollIntoView({
-            behavior: 'smooth',
-        })
-    })
-}
-
-/**
- * 修改详情
- */
-const updateDetails = () => {
-    console.log(state.article)
-    console.log('内容', state.content)
-    router.push(`/admin/${state.blogId}`)
-}
-
 
 </script>
 
@@ -385,14 +347,6 @@ const updateDetails = () => {
                         border-radius: 0 5px 5px 0;
                         transform: translate(-50%, -50%);
                     }
-                }
-                .level1 {
-                }
-                .level2 {
-                    padding-left: 10px;
-                }
-                .level3 {
-                    padding-left: 30px;
                 }
             }
         }

@@ -26,10 +26,6 @@
         <Popup :show="state.flag" :update-data="updateData" @onCancel="onCancel" @onSuccess="sumbit" />
     </template>
 </template>
-<!-- qklhk-chocolate.min.css -->
-<!-- mk-cute.min.css -->
-<!-- nico.min.css -->
-<!-- healer-readable.min.css -->
 <script setup lang="ts">
 import 'bytemd/dist/index.css'
 import { Editor } from '@bytemd/vue-next'
@@ -42,12 +38,14 @@ import gemoji from '@bytemd/plugin-gemoji'
 import mediumZoom from '@bytemd/plugin-medium-zoom'
 import zhHans from 'bytemd/locales/zh_Hans.json'
 import 'juejin-markdown-themes/dist/scrolls-light.css'
-import { onMounted, reactive, ref } from 'vue'
+import { nextTick, onMounted, reactive, ref } from 'vue'
 import { addBlog, getBlogDetails, updateBlog } from '@/api'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
 const plugins = [gfm(), highlight(), breaks(), frontmatter(), footnotes(), gemoji(), mediumZoom()]
+
+
 
 const route = useRoute()
 const router = useRouter()
@@ -71,6 +69,13 @@ onMounted(() => {
         state.blogId = +id
         state.type = 'update'
     }
+
+    // 隐藏右边目录
+    // nextTick(() => {
+    //     let rightMenu: any = document.querySelector('.bytemd-toolbar-right')
+    //     console.log(rightMenu)
+    //     rightMenu.style = "display: none;"
+    // })
 })
 
 const handleChange = (val: any) => {
@@ -95,7 +100,8 @@ const uploadImage = async (files: any) => {
 const sumbitImage = async (file: any) => {
     const data = new FormData()
     data.append('file', file)
-    const result = await axios.post('https://lovehaha.cn/api/qiniu', data, {
+    // 服务器图片接口地址，
+    const result = await axios.post('', data, {
         headers: { 'content-Type': 'multipart/form-data' },
     })
     console.log(result)
