@@ -4,8 +4,8 @@
             <a href="#">爱呵呵个人博客@记录 开发笔记 前端开发笔记！方法合集，bug处理</a>
             <p class="link">友情链接：<a href="https://lovehaha.cn" target="_blank">软件分享网站-小白之家</a></p>
             <p class="copy">
-                Copyright © 2022 开发学习 -
-                <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">赣ICP备2022008880号-1</a>
+                Copyright © 2023 小杨学开发 -
+                <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">蜀ICP备19024285号-4</a>
             </p>
         </div>
     </footer>

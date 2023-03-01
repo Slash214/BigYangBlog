@@ -16,13 +16,18 @@
 
 </p>
 
+
+# 关于项目
+个人博客的开发项目，后续会一点点添加自己喜爱的东东...
+
+
 [博客API接口](https://github.com/Slash214/MyBlogApi.git)
 
 # 实现地址
-[博客网站](https://jayyyds.cn)
+[博客网站](https://yjpsix.com)
 
 ###### 配置要求
-1：vue语法
+1：vue3语法
 
 #####  安装使用
 -   git clone https://github.com/Slash214/BigYangBlog.git

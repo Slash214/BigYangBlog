@@ -95,7 +95,6 @@ video {
     font-display: swap;
 }
 
-
 /* HTML5 display-role reset for older browsers */
 article,
 aside,
@@ -116,8 +115,9 @@ body {
 }
 
 body {
-    font-family: '阿里巴巴普惠体 2.0 55 Regular', -apple-system, system-ui, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
-        sans-serif, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial;
+    font-family: '阿里巴巴普惠体 2.0 55 Regular', -apple-system, system-ui, Segoe UI, Roboto, Ubuntu, Cantarell,
+        Noto Sans, sans-serif, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB',
+        'Microsoft YaHei', Arial;
     font-size: 14px;
     line-height: 1;
     background-color: #f4f4f4;
@@ -209,4 +209,19 @@ a {
 }
 .mb40 {
     margin-bottom: 40px;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #0003;
+    border-radius: 10px;
+    transition: all 0.2s ease-in-out;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 10px;
 }

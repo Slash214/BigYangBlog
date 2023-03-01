@@ -17,9 +17,13 @@
                 </div>
                 <div class="update-text" v-if="state.flag" @click="updateDetails">修改</div>
             </div>
+            
             <div class="blog_content whites">
-                <MdViewer :value="state.content" />
-                <!-- <Viewer  :value="state.content"></Viewer> -->
+                <div v-if="!state.content" class="loading"> 
+                    <Loading />
+                    <p class="loading-text">加载中...</p>
+                </div>
+                <MdViewer v-else :value="state.content" />
             </div>
             <div class="blog_comment whites">
                 <div class="mb20 commentbtns">
@@ -265,6 +269,7 @@ const handleComment = async () => {
         .blog_title {
             margin-top: 20px;
             position: relative;
+            cursor: pointer;
             .title {
                 @include font-set($font32, #222, 600, 1.3);
             }
@@ -302,6 +307,21 @@ const handleComment = async () => {
             }
         }
         .blog_content {
+            min-height: 70vh;
+            .loading {
+                margin-top: 150px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                .loading-text {
+                    padding-top: 40px;
+                    letter-spacing: 2px;
+                    line-height: 2;
+                    font-weight: 600;
+                    font-size: 18px;
+                    color: #1e80ff;
+                }
+            }
             .viewer {
                 min-height: 50vh;
                 width: 100%;

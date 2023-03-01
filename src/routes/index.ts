@@ -11,7 +11,6 @@ import RouteAsync from '@/routes/route.async'
 const routes: Array<RouteRecordRaw> = [
 	...System,
 	...RouteAsync,
-	
 ]
 
 const router: Router = createRouter({
@@ -19,6 +18,9 @@ const router: Router = createRouter({
 	routes
 })
 
+/**
+ * @descrion 如果你需要添加token 可以在 beforeEach去判断token 控制路由
+ */
 router.beforeEach((to, _from, next) => {
 	NProgress.start()
 	document.title = (to.meta.title as string) || import.meta.env.BASE_URL

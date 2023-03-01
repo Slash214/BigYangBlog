@@ -14,7 +14,7 @@
     <div class="safe_area" :style="{ background: state.loading ? 'none' : '#fff' }">
         <el-skeleton :loading="state.loading" animated>
             <template #template>
-                <article class="list" style="height: 270px; padding: 30px" v-for="item in 1" :key="item">
+                <article class="item" style="height: 270px; padding: 30px" v-for="item in 1" :key="item">
                     <el-skeleton-item class="el-image" variant="image" />
                     <div class="desc">
                         <el-skeleton-item variant="text" class="title" />
@@ -25,8 +25,10 @@
             </template>
             <template #default>
                 <template v-for="item of state.list" :key="item.id">
-                    <article class="list" @click="gotoDetails(item)">
-                        <el-image :src="item.cover"></el-image>
+                    <article class="item animat" @click="gotoDetails(item)">
+                        <div class="cover">
+                            <el-image :src="item.cover"></el-image>
+                        </div>
                         <div class="desc">
                             <h4 class="title" v-text="item.title"></h4>
                             <p class="info" v-text="item.desc"></p>
@@ -40,7 +42,6 @@
                                         :key="tag_value"
                                         :type="tagStyle(idx)"
                                         effect="dark"
-                                        round
                                     >
                                         {{ tag_value }}
                                     </el-tag>
@@ -87,8 +88,6 @@ interface req {
     pageSize: number
     tag?: string
 }
-
-
 
 let words = ref('')
 const router = useRouter()
@@ -224,9 +223,7 @@ const tagStyle = (key: number) => {
     if (key === 2) return 'danger'
     if (key === 3) return 'warning'
     if (key >= 4) return ''
-} 
-
-
+}
 </script>
 
 <style scoped lang="scss">
@@ -261,7 +258,8 @@ const tagStyle = (key: number) => {
 .safe_area {
     margin: 20px auto;
     min-height: 90vh;
-    .list {
+    .item {
+        position: relative;
         cursor: pointer;
         &:first-child {
             padding-top: 20px;
@@ -270,18 +268,30 @@ const tagStyle = (key: number) => {
         padding: 0 30px;
         @include flex-auto(center, space-between);
         position: relative;
-        .el-image {
+
+        .cover {
             width: 270px;
-            height: 210px;
-            border-radius: $br-s;
+            height: 180px;
+            overflow: hidden;
+            .el-image {
+                transition: all ease 0.3s;
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                border-radius: $br-s;
+                &:hover {
+                    transform: scale(1.2);
+                }
+            }
         }
         .desc {
             flex: 1;
-            height: 210px;
+            height: 180px;
             padding: 10px 0;
-            line-height: 1.5;
+            line-height: 2;
+            letter-spacing: 2px;
             @include flex-auto(false, space-between, column);
-            margin-left: 40px;
+            margin-left: 30px;
             text-align: justify;
             .title {
                 @include text-hidden(1);
@@ -304,6 +314,28 @@ const tagStyle = (key: number) => {
                     flex: 1;
                     text-align: right;
                 }
+            }
+        }
+    }
+    .animat {
+        &::after {
+            position: absolute;
+            content: ' ';
+            bottom: -24px;
+            left: 0;
+            height: 5px;
+            width: 0;
+            background-image: linear-gradient(
+                -225deg,
+                rgb(93, 159, 255) 0%,
+                rgb(184, 220, 255) 48%,
+                rgb(107, 187, 255) 100%
+            );
+            transition: all ease-in-out 0.5s;
+        }
+        &:hover {
+            &::after {
+                width: 100%;
             }
         }
     }

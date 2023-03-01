@@ -16,7 +16,10 @@
             <div class="item">
                 <p>文章封面：</p>
                 <img v-if="state.imageUrl" :src="state.imageUrl" class="avatar" />
-                <p class="btn_image" @click="genImage">{{ state.imageUrl ? '更换图片' : '生成图片' }}</p>
+                <p class="btn_image" @click="genImage">
+                    <span>{{ state.imageUrl ? '更换图片' : '生成图片' }}</span>
+                    <span class="ml20" v-show="uploadStatus">正在获取图片...</span>
+                </p>
             </div>
             <div class="item">
                 <p>编辑摘要：</p>
@@ -104,16 +107,26 @@ const send = () => {
     emits('onSuccess', item)
 }
 
+/**
+ * 获取 api.unsplash 的图片 实测 显示太慢了 
+ * 2023-3-1 优化 增加一个上传的提示，因为获取unsplash的图片容易出现图片加载失败的问题
+ * 所以添加一个可视化的 上传过程这样会好一些
+ */
+
+const uploadStatus = ref(false)
 const genImage = async () => {
+    uploadStatus.value = true
     const {
-        data: { urls },
+        data
     } = await axios.get('https://api.unsplash.com/photos/random', {
         params: {
             client_id: 'hcOvHaEG3wwoKmlttKrvR7cLwRwnF4HC3fV2OVY1a-s',
             orientation: 'squarish',
         },
     })
-    state.imageUrl = urls?.regular || ''
+    // 这里获取 thumb 缩略图 可能会加载快一点
+    state.imageUrl = data?.urls?.thumb || ''
+    if (state.imageUrl) uploadStatus.value = false
     console.log('result', state.imageUrl)
 }
 </script>
