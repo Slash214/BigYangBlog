@@ -31,6 +31,7 @@ declare module '@vue/runtime-core' {
     Header: typeof import('./components/Header.vue')['default']
     Loading: typeof import('./components/Loading.vue')['default']
     MdViewer: typeof import('./components/MdViewer.vue')['default']
+    Music: typeof import('./components/Music.vue')['default']
     Popup: typeof import('./components/Popup.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
