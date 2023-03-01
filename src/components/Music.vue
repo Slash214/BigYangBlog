@@ -1,5 +1,5 @@
 <template>
-	<div class="music">
+	<div class="music" v-if="false">
       
 	</div>
 </template>
