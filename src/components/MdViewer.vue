@@ -25,17 +25,19 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const viewer = ref<bytemd.Editor | any>(null)
-const instance:any = getCurrentInstance()
+const instance: any = getCurrentInstance()
 
+// 忽略这里的报错 后面修复
 onMounted(() => {
+    // @ts-ignore
     viewer.value = new bytemd.Viewer({
         target: instance?.subTree.el,
         props,
     })
 })
 
-watch(props, newValue => {
-    viewer.value.$set(Object.fromEntries(Object.entries(newValue).filter(v => v)))
+watch(props, (newValue) => {
+    viewer.value.$set(Object.fromEntries(Object.entries(newValue).filter((v) => v)))
 })
 </script>
 
