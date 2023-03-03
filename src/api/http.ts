@@ -2,15 +2,17 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } f
 import { ElMessage } from 'element-plus'
 let baseURL = ''
 const env = import.meta.env.MODE
+
 console.log(env)
 
 const urls = new Map<string, any>([
     ['dev', 'http://127.0.0.1:4500'],
     ['test', 'http://127.0.0.1:4523/m1/532983-0-default'],
-    ['production', ''],
+    ['production', 'https://yjpsix.com/blog/api'],
 ])
 // vite3 可以直接获取 就不用这样了 import.meta.env.VITE_BASE_URL
 
+// console.error('import.meta.env.VITE_BASE_URL', import.meta.env.VITE_BASE_URL)
 
 if (urls.get(env)) baseURL = urls.get(env)
 // 创建实例
