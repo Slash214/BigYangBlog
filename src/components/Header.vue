@@ -3,10 +3,11 @@
         <div class="safe_area">
             <div class="logo">
                 <router-link tag="h4" to="/">爱呵呵博客</router-link>
-                <a target="_blank" href="https://github.com/Slash214/BigYangBlog">GitHub</a>
+                <router-link tag="a" to="/laboratory">实验室</router-link>
                 <router-link tag="a" to="/about">关于项目</router-link>
                 <router-link tag="a" to="/admin/0" v-if="isLogin">增加博客</router-link>
                 <router-link tag="a" to="/tag" v-if="isLogin">博客标签</router-link>
+                <a target="_blank" href="https://github.com/Slash214/BigYangBlog">GitHub</a>
             </div>
             <div class="link">
                 <el-button v-if="!isLogin" type="success" plain @click="changeDialog">管理员登录</el-button>
@@ -49,8 +50,6 @@
 import { ElMessage } from 'element-plus'
 import { onMounted, ref } from 'vue'
 import { usrLogin } from '@/api'
-import { pa } from 'element-plus/es/locale';
-
 
 const dialogVisible = ref<boolean>(false)
 const username = ref<string>('')

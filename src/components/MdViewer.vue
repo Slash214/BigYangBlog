@@ -2,7 +2,7 @@
 import { ref, onMounted, getCurrentInstance, watch } from 'vue'
 import * as bytemd from 'bytemd'
 import 'bytemd/dist/index.min.css'
-import 'juejin-markdown-themes/dist/scrolls-light.min.css'
+import 'juejin-markdown-themes/dist/geek-black.min.css'
 import zhHans from 'bytemd/locales/zh_Hans.json'
 import breaks from '@bytemd/plugin-breaks'
 import highlight from '@bytemd/plugin-highlight'

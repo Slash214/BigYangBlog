@@ -7,6 +7,8 @@ declare module '*.vue' {
   export default component
 }
 
+declare module 'file-saver'
+
 interface ImportMetaEnv {
   readonly VITE_APP_URL: string
   // 更多环境变量...
