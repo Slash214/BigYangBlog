@@ -1,15 +1,43 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="大羊个人博客，记录分析前端开发的笔记，前端基础，项目分析。案例分析">
-    <meta name="keywords" content="个人博客，爱呵呵，大羊，前端，不务正业，菜鸟博客，Node,Vue，JavaScrip">
-    <title>爱呵呵博客--前端小哥的私人笔记记录 ~ </title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="大羊个人博客，记录分析前端开发的笔记，前端基础，项目分析。案例分析" />
+        <meta name="keywords" content="个人博客，爱呵呵，大羊，前端，不务正业，菜鸟博客，Node,Vue，JavaScrip" />
+        <title>爱呵呵博客--前端小哥的私人笔记记录 ~</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            #loading {
+                width: 100vw;
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+            }
+
+            #loading p {
+                line-height: 2;
+                letter-spacing: 5px;
+                font-weight: 700;
+                font-size: 24px;
+                color: #2885f9;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <!-- 加载动画 -->
+            <div id="loading">
+                <img src="src/assets/loading.gif" alt="" />
+                <p>正在加载页面哦...骚等一下下</p>
+            </div>
+        </div>
+        <script type="module" src="/src/main.ts"></script>
+    </body>
 </html>
