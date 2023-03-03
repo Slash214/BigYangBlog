@@ -25,6 +25,11 @@ const RouteAsync: Array<RouteRecordRaw> = [
 		path: '/tag',
 		meta: { title: '博客网站标签管理', footer: false, header: true },
 		component: () => import('views/tag/index.vue')
+	},
+	{
+		path: '/laboratory',
+		meta: { title: '实验室', footer: true, header: true },
+		component: () => import('views/laboratory/index.vue')
 	}
 ]
 
