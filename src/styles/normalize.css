@@ -150,6 +150,10 @@ a {
     cursor: pointer;
 }
 
+.pointer {
+    cursor: pointer;
+}
+
 .mt05 {
     margin-top: 5px;
 }

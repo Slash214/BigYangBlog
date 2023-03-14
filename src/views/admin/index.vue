@@ -6,7 +6,7 @@
             </div>
             <div class="right">
                 <el-button @click="gohome">返回首页</el-button>
-                <el-button @click="onCancel" type="primary">发布</el-button>
+                <el-button @click="onCancel" type="primary">{{ state.type === 'update' ? '修改' : '发布' }}</el-button>
                 <el-avatar
                     src="https://img2.baidu.com/it/u=2744676768,2143551610&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=502"
                     :size="45"

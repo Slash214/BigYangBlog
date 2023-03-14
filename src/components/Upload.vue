@@ -17,23 +17,28 @@
         </el-upload>
 
         <div class="list">
-            <div class="mb20">
+            <div class="mb20" v-show="fileList.length">
                 <el-button type="primary">统一转为：jpeg</el-button>
                 <el-button type="info" @click="downloadAll">打包下载</el-button>
                 <el-button type="warning" @click="conversionAll">一键转换全部</el-button>
             </div>
             <div class="item" v-for="(item, key) of fileList" :ke="key">
-                <div class="flex">
-                    <p class="mr20">图片名称：{{ item.name }}</p>
+                <div class="flex w80">
+                    <p class="mr20">{{ item.name }}</p>
                     转为：
-                    <el-select v-model="item.default" class="m-2" placeholder="选择图片格式">
+                    <el-select @change="selectChange(item.uid, $event)" v-model="item.default" class="m-2" placeholder="选择图片格式">
                         <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
                     </el-select>
+
+                    <div class="ml20" style="flex: 1;">
+                        <el-progress :percentage="item.percentage" />
+                    </div>
                 </div>
 
                 <div class="flex">
                     <el-button type="primary" @click="Conversion(item)">开始转换</el-button>
-                    <el-button type="success" @click="download(item)">下载</el-button>
+                    <el-button :disabled="item.percentage !== 100" type="success" @click="download(item)">下载</el-button>
+                    <el-icon class="ml20 pointer" color="#F56C6C"  size="20"><Delete /></el-icon>
                 </div>
             </div>
         </div>
@@ -41,15 +46,17 @@
 </template>
 
 <script setup lang="ts">
-import { UploadFilled } from '@element-plus/icons-vue'
+import { UploadFilled, Delete } from '@element-plus/icons-vue'
 import { ElMessage, UploadProps, UploadUserFile } from 'element-plus'
 import { ref } from 'vue'
 import { saveAs } from 'file-saver'
 import JsZip from 'jszip'
+import { setTimeout } from 'timers/promises'
 
 interface FileLists extends UploadUserFile {
     default?: string
     url?: string
+    
 }
 
 interface FileProps extends UploadProps {
@@ -75,10 +82,14 @@ const handleChange = (uploadFile: FileProps, uploadFiles: FileLists[]) => {
 
 const Conversion = async (item: FileLists) => {
     console.log(item)
+    while (item.percentage! <= 54) {
+        item.percentage!++
+    }
     let url = await CoversionImage(item)
     for (let data of fileList.value) {
         if (data.uid === item.uid) {
             data['url'] = url
+            item.percentage = 100
         }
     }
 }
@@ -129,6 +140,21 @@ const fileToBase64 = (file: File | Blob) => {
     })
 }
 
+
+const selectChange = (uid: number, val: string) => {
+   console.log('val触发了改变', val, uid)
+    for (let item of fileList.value) {
+        if (item.uid === uid) {
+        item.percentage = 0
+      }
+    }
+}
+
+
+/**
+ * 下载单个图片
+ * @param item 
+ */
 const download = (item: FileLists) => {
     console.log(item)
 
@@ -140,6 +166,7 @@ const download = (item: FileLists) => {
 
     let name = item.name.split('.')[0]
     saveAs(item.url, `${name}.${item.default}`)
+    ElMessage.success('下载成功!')
 }
 
 const downloadAll = async () => {
@@ -201,9 +228,10 @@ const base64ToBlob = (base64: string) => {
         display: flex;
         margin-bottom: 20px;
         justify-content: space-between;
-        padding: 15px;
-        box-shadow: 0 0 6px 2px #ccc;
-        background-color: #f2f2f2;
+        padding: 20px 15px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px 2px #ddd;
+        background-color: #fff;
         #download {
             background-color: #67c23a;
             color: #fff;
@@ -216,6 +244,9 @@ const base64ToBlob = (base64: string) => {
             height: 32px;
             white-space: nowrap;
             cursor: pointer;
+        }
+        .w80 {
+            width: 80%;
         }
     }
     .flex {
